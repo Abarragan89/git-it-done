@@ -1,5 +1,8 @@
 "use strict";
-const issueContainerEl = document.querySelector("#issues-container");
+const issueContainerEl = document.querySelector
+("#issues-container");
+const limitWarningEl = document.querySelector("#limit-warning");
+
 const  getRepoIssues = function(repo) {
     const apiURL = "https://api.github.com/repos/" + repo + "/issues?direction=asc";
     fetch(apiURL).then(function(response) {
@@ -8,11 +11,15 @@ const  getRepoIssues = function(repo) {
             response.json().then(function(data) {
                 displayIssues(data)
             });
+            // check if api has paginated issues
+            if (response.headers.get("Link")) {
+                displayWarning(repo);
+            }
         }
         else {
             alert("There was a problem with your request!")
         }
-    }) 
+    })
 };
 
 const displayIssues = function(issues) {
@@ -45,4 +52,14 @@ const displayIssues = function(issues) {
     }
 }
 
-getRepoIssues("Abarragan89/robot_gladiators");
+const displayWarning = function(repo) {
+    // add text to warning container
+    limitWarningEl.textContent = "To see more than 30 issues, visit ";
+    const linkEl = document.createElement("a");
+    linkEl.textContent = "See More issues on GitHub.com";
+    linkEl.setAttribute("href", "https://github.com/" + repo + "/issues");
+    // append to warning container
+    limitWarningEl.appendChild(linkEl);
+};
+
+getRepoIssues("facebook/react");
