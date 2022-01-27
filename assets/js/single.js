@@ -2,11 +2,27 @@
 const issueContainerEl = document.querySelector
 ("#issues-container");
 const limitWarningEl = document.querySelector("#limit-warning");
+const repoNameEl = document.querySelector("#repo-name");
+
+
+const getRepoName = function() {
+    // grab repo name from url query string
+    const queryString = document.location.search;
+    const repoName = queryString.split("=")[1];
+    if (repoName) {
+        // display repor name on the page
+        repoNameEl.textContent = repoName;
+        getRepoIssues(repoName);
+    } else {
+        // if no repo was given, redirect to the homepage. 
+        document.location.replace("./index.html")
+    }
+}
 
 const  getRepoIssues = function(repo) {
     const apiURL = "https://api.github.com/repos/" + repo + "/issues?direction=asc";
     fetch(apiURL).then(function(response) {
-        // request was successfull
+        // request was successful
         if (response.ok) {
             response.json().then(function(data) {
                 displayIssues(data)
@@ -17,7 +33,8 @@ const  getRepoIssues = function(repo) {
             }
         }
         else {
-            alert("There was a problem with your request!")
+            // if not successful, redirect to homepage
+            document.location.replace("./index.html")
         }
     })
 };
@@ -62,4 +79,6 @@ const displayWarning = function(repo) {
     limitWarningEl.appendChild(linkEl);
 };
 
-getRepoIssues("facebook/react");
+getRepoName()
+
+// getRepoName calls getRepoIssues which in turn calls displaysIssues and displayWarning if there is a link property in the response header
