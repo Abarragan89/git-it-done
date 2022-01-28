@@ -1,6 +1,7 @@
 "use strict";
 const repoContainerEl = document.querySelector("#repos-container");
 const repoSearchTerm = document.querySelector("#repo-search-term");
+const languageButtonsEl = document.querySelector("#language-buttons")
 
 var getUserRepos = function (user) {
     const apiURL = `https://api.github.com/users/${user}/repos`;
@@ -15,7 +16,7 @@ var getUserRepos = function (user) {
                 alert("Error: GitHub User Not Found")
             }
         })
-        .catch(function(error) {
+        .catch(function (error) {
             alert("Unable to connect to GitHub");
         })
 }
@@ -75,3 +76,31 @@ const displayRepos = function (repos, searchTerm) {
     console.log(repos);
     console.log(searchTerm)
 }
+
+var getFeaturedRepos = function (language) {
+    const apiUrl = "https://api.github.com/search/repositories?q=" + language + "is:featured&sort=help-wanted-issues";
+
+    fetch(apiUrl)
+        .then(function (response) {
+            if (response.ok) {
+                response.json().then(function(data) {
+                    displayRepos(data.items, language)
+                });
+            } else {
+                alert("Error: GitHub User Not Found");
+            }
+        })
+}
+
+const buttonClickHandler = function (event) {
+    const language = event.target.getAttribute("data-language");
+    if (language) {
+        getFeaturedRepos(language);
+        // clear old content (this will run first and clear it out since getFeatured Repos is asynchronous)
+        repoContainerEl.textContent = "";
+    }
+    console.log(language)
+
+}
+
+languageButtonsEl.addEventListener("click", buttonClickHandler);
